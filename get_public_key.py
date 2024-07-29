@@ -29,13 +29,11 @@ def get_scriptpubkey(wallet: str) -> str:
         response.raise_for_status()
         
         transactions: List[Dict[str, Any]] = response.json()
-        scriptpubkey: Optional[str] = next(
-            (vout["scriptpubkey"][4:]
-             for tx in transactions
-             for vout in tx["vout"]
-             if vout.get("scriptpubkey_address") == wallet),
-            None
-        )
+        
+        if len(transactions) == 0:
+            return "Nenhuma transação encontrada para a carteira especificada."
+
+        scriptpubkey: Optional[str] = transactions[0]['vin'][0]['witness'][1]
 
         if scriptpubkey:
             return f"[+] CHAVE PÚBLICA: {scriptpubkey}\n"
